@@ -1,0 +1,3 @@
+/* CSS declarations go here */
+.textCenter { text-align: center; }
+.flexCenter { display: flex; align-items: center; justify-content: center;  }
