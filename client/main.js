@@ -15,8 +15,8 @@ let P =
 	[21,51,23,53,24,61,22,31,21,43,20],
 	[11,52,14,42,15,31,17,21,16,43,12,31,13,32,15]
 ]
-let readyQueue = []
-let endTimes = []; let oldEndTimes = []
+let readyQueue = [ [],[] ]
+let endTimes = [ [],[] ]; // let oldEndTimes = []
 
 let calculate = function()
 {
@@ -46,7 +46,7 @@ let calculate = function()
 				if ( iOBurst != undefined )
 				{
 					waitTimes[x].push(totalTime); responseTimes.push(totalTime) 
-					oldEndTimes.push( entry + iOBurst + totalTime )
+					endTimes[x].push( entry + iOBurst + totalTime )
 					totalTime += entry
 				}
 			}			
@@ -55,16 +55,16 @@ let calculate = function()
 		//y = 0 // reset y after a column is traversed
 
 			// copy endTimes by value & sort
-			let endTimesDescending = oldEndTimes.slice()
+			let endTimesDescending = endTimes[x].slice()
 			endTimesDescending.sort( function(a, b){return a-b} ) 
 
 			// load ready queue with programs in order to be executed
 			for ( i in endTimesDescending )
-				readyQueue.push( oldEndTimes.indexOf( endTimesDescending[i] ) )
+				readyQueue[x].push( endTimes[x].indexOf( endTimesDescending[i] ) )
 
 			console.log("readyQueue", readyQueue)
-			console.log("endTimes", oldEndTimes)
-			console.log("totalTime", totalTime)
+			console.log("endTimes", endTimes)
+			//console.log("totalTime", totalTime)
 			console.log("waitTimes", waitTimes)
 	}
 
@@ -74,22 +74,20 @@ let calculate = function()
 	for ( let x = 2; x < 4; x+=2 )
 	{
 		//endTimes = [] // reset endTimes before each iteration
-		for ( let i = 0; i < readyQueue.length; i++ )
+		for ( let i = 0; i < readyQueue[readyQueue.length - 2].length; i++ )
 		{
-			let entry = P[ readyQueue[i] ][x]
+			let entry = P[ readyQueue[readyQueue.length - 2][i] ][x]
 			if ( entry != undefined ) // FCFS algorithm is applied here
 			{		
 	 			// find endtime for each cpu burst with its i/o 
-				let iOBurst = P[ readyQueue[i] ][x + 1]
+				let iOBurst = P[ readyQueue[readyQueue.length - 2][i] ][x + 1]
 				if ( iOBurst != undefined )
 				{
 					// update waitTimes here
-					let waitingTime = totalTime - oldEndTimes[readyQueue.indexOf(i)]
-					waitTimes[1][readyQueue.indexOf(i) ] = waitingTime 
-					console.log("waitTimes update", waitTimes)
-					console.log("waiting time for P" + readyQueue.indexOf(i) + " " + waitingTime )
+					let waitingTime = totalTime - endTimes[endTimes.length - 2][readyQueue[readyQueue.length - 2].indexOf(i)]
+					waitTimes[waitTimes.length - 1][readyQueue[readyQueue.length - 2].indexOf(i) ] = waitingTime 
 					
-					endTimes[i] = entry + iOBurst + totalTime
+					endTimes[endTimes.length - 1][i] = entry + iOBurst + totalTime
 					totalTime += entry
 				}
 			}			
@@ -99,7 +97,7 @@ let calculate = function()
 		iterationTimes.push( totalTime - iterationTimes[iterationTimes.length - 1] )
 
 		// copy endTimes by value & sort
-		let endTimesDescending = endTimes.slice()
+		let endTimesDescending = endTimes[endTimes.length - 1].slice()
 		endTimesDescending.sort( function(a, b){return a-b} ) 
 
 		// align endTimes with processes from ready queue
@@ -108,21 +106,20 @@ let calculate = function()
 
 		// load ready queue with programs in order to be executed
 		for ( i in endTimesDescending )
-			tempReadyQueue1.push( endTimes.indexOf( endTimesDescending[i] ) )
+			tempReadyQueue1.push( endTimes[endTimes.length - 1].indexOf( endTimesDescending[i] ) )
+
 
 		// rearrange temp ready queue, accounting for previous ready queue order
 		for ( let i = 0; i < tempReadyQueue1.length; i++)
-			tempReadyQueue2.push( readyQueue.indexOf( tempReadyQueue1[i] ) )
+			tempReadyQueue2.push( readyQueue[readyQueue.length - 2].indexOf( tempReadyQueue1[i] ) )
 
-		readyQueue = tempReadyQueue2.slice() // update ready queue
-
-		// store last iteration's endtimes for next waiting time calculation 
-
+		// update ready queue
+		readyQueue[readyQueue.length - 1] = tempReadyQueue2.slice() 
 
 		console.log("iterationTimes", iterationTimes)
 		console.log("readyQueue", readyQueue)
 		console.log("endTimes", endTimes)
-		console.log("totalTime", totalTime)
+		//console.log("totalTime", totalTime)
 		console.log("waitTimes", waitTimes)
 
 		// y = 0 // reset y after a column is traversed
