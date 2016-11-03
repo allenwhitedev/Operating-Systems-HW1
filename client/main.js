@@ -15,116 +15,212 @@ let P =
 	[21,51,23,53,24,61,22,31,21,43,20],
 	[11,52,14,42,15,31,17,21,16,43,12,31,13,32,15]
 ]
-let readyQueue = [ [],[] ]
-let endTimes = [ [],[] ]; // let oldEndTimes = []
+let readyQueue = [ [] ]
+let endTimes = [ [] ] 
+let waitTimes = [ [] ]
 
-let calculate = function()
-{
-	let waitTimes = [ [],[] ]; let turnaroundTimes = []; let responseTimes = []
-	let iterationTimes = []
+let iterationTimes = []
 
-	let currIOTime = 0; let currCPUTime = 0
-	let cpuTime = 0; let totalTime = 0; let maxArrayWidth = 0
+let cpuTime = 0
 
-	// find max width of array
-	for ( let y = 0; y < P.length; y++ )
-		if ( maxArrayWidth < P[y].length )
-			maxArrayWidth = P[y].length
+// find max width of array
+let maxArrayWidth = 0
+for ( let y = 0; y < P.length; y++ )
+	if ( maxArrayWidth < P[y].length )
+		maxArrayWidth = P[y].length
 
-	// traverse array by column top to bottom, starting with leftmost column
+// find min width of array
+let minArrayWidth = P[0].length
+for ( let y = 0; y < P.length; y++ )
+	if ( minArrayWidth > P[y].length )
+	{
+		minArrayWidth = P[y].length
+		//console.log("P" + y + P[y].length)
+	}
+
+
+// let oldEndTimes = []
+
+// let calculate = function()
+// {
+// 	let waitTimes = [ [] ]; let turnaroundTimes = []; let responseTimes = []
+// 	let iterationTimes = []
+
+// 	let currIOTime = 0; let currCPUTime = 0
+// 	let cpuTime = 0; let totalTime = 0; let maxArrayWidth = 0
+
+
+
+// 	// traverse array by column top to bottom, starting with leftmost column
 	
-  // ----- first iteration used to find ready queue ---------
-	for ( let x = 0; x < 1; x+=2 )
-	{
-		for ( let y = 0; y < P.length; y++ )
-		{
-			let entry = P[y][x]
-			if ( entry != undefined ) // FCFS algorithm is applied here
-			{		
-	 			// find endtime for each cpu burst with its i/o 
-				let iOBurst = P[y][x + 1]
-				if ( iOBurst != undefined )
-				{
-					waitTimes[x].push(totalTime); responseTimes.push(totalTime) 
-					endTimes[x].push( entry + iOBurst + totalTime )
-					totalTime += entry
-				}
-			}			
-		}
-			iterationTimes.push(totalTime)
-		//y = 0 // reset y after a column is traversed
+//   // ----- first iteration used to find ready queue ---------
+// 	for ( let x = 0; x < 1; x+=2 )
+// 	{
+// 		for ( let y = 0; y < P.length; y++ )
+// 		{
+// 			let entry = P[y][x]
+// 			if ( entry != undefined ) // FCFS algorithm is applied here
+// 			{		
+// 	 			// find endtime for each cpu burst with its i/o 
+// 				let iOBurst = P[y][x + 1]
+// 				if ( iOBurst != undefined )
+// 				{
+// 					waitTimes[x].push(totalTime); responseTimes.push(totalTime) 
+// 					endTimes[x].push( entry + iOBurst + totalTime )
+// 					totalTime += entry
+// 				}
+// 			}			
+// 		}
+// 			iterationTimes.push(totalTime)
+// 		//y = 0 // reset y after a column is traversed
 
-			// copy endTimes by value & sort
-			let endTimesDescending = endTimes[x].slice()
-			endTimesDescending.sort( function(a, b){return a-b} ) 
+// 			// copy endTimes by value & sort
+// 			let endTimesDescending = endTimes[x].slice()
+// 			endTimesDescending.sort( function(a, b){return a-b} ) 
 
-			// load ready queue with programs in order to be executed
-			for ( i in endTimesDescending )
-				readyQueue[x].push( endTimes[x].indexOf( endTimesDescending[i] ) )
+// 			// load ready queue with programs in order to be executed
+// 			for ( i in endTimesDescending )
+// 				readyQueue[x].push( endTimes[x].indexOf( endTimesDescending[i] ) )
 
-			console.log("readyQueue", readyQueue)
-			console.log("endTimes", endTimes)
-			//console.log("totalTime", totalTime)
-			console.log("waitTimes", waitTimes)
-	}
+// 			console.log("readyQueue", readyQueue)
+// 			console.log("endTimes", endTimes)
+// 			//console.log("totalTime", totalTime)
+// 			console.log("waitTimes", waitTimes)
+// 	}
 
-	console.log("------------------------------\n")
+// 	console.log("------------------------------\n")
 
-	// ---- all iterations for scheduling besides first iteration ----
-	for ( let x = 2; x < 4; x+=2 )
-	{
-		//endTimes = [] // reset endTimes before each iteration
-		for ( let i = 0; i < readyQueue[readyQueue.length - 2].length; i++ )
-		{
-			let entry = P[ readyQueue[readyQueue.length - 2][i] ][x]
-			if ( entry != undefined ) // FCFS algorithm is applied here
-			{		
-	 			// find endtime for each cpu burst with its i/o 
-				let iOBurst = P[ readyQueue[readyQueue.length - 2][i] ][x + 1]
-				if ( iOBurst != undefined )
-				{
-					// update waitTimes here
-					let waitingTime = totalTime - endTimes[endTimes.length - 2][readyQueue[readyQueue.length - 2].indexOf(i)]
-					waitTimes[waitTimes.length - 1][readyQueue[readyQueue.length - 2].indexOf(i) ] = waitingTime 
+// 	// ---- all iterations for scheduling besides first iteration ----
+// 	for ( let x = 2; x < 4; x+=2 )
+// 	{
+// 		waitTimes[waitTimes.length] = []
+// 		endTimes[endTimes.length] = []
+// 		readyQueue[readyQueue.length] = []
+// 		//endTimes = [] // reset endTimes before each iteration
+// 		for ( let i = 0; i < readyQueue[readyQueue.length - 2].length; i++ )
+// 		{
+// 			let entry = P[ readyQueue[readyQueue.length - 2][i] ][x]
+// 			if ( entry != undefined ) // FCFS algorithm is applied here
+// 			{		
+// 	 			// find endtime for each cpu burst with its i/o 
+// 				let iOBurst = P[ readyQueue[readyQueue.length - 2][i] ][x + 1]
+// 				if ( iOBurst != undefined )
+// 				{
+// 					// update waitTimes here
+// 					let waitingTime = totalTime - endTimes[endTimes.length - 2][readyQueue[readyQueue.length - 2].indexOf(i)]
+// 					waitTimes[waitTimes.length - 1][readyQueue[readyQueue.length - 2].indexOf(i) ] = waitingTime 
 					
-					endTimes[endTimes.length - 1][i] = entry + iOBurst + totalTime
-					totalTime += entry
-				}
-			}			
-		}
-		// --determine ready queue and waiting times after each iteration--
+// 					endTimes[endTimes.length - 1][i] = entry + iOBurst + totalTime
+// 					totalTime += entry
+// 				}
+// 			}			
+// 		}
+// 		// --determine ready queue and waiting times after each iteration--
 
-		iterationTimes.push( totalTime - iterationTimes[iterationTimes.length - 1] )
+// 		iterationTimes.push( totalTime - iterationTimes[iterationTimes.length - 1] )
 
-		// copy endTimes by value & sort
-		let endTimesDescending = endTimes[endTimes.length - 1].slice()
-		endTimesDescending.sort( function(a, b){return a-b} ) 
+// 		// copy endTimes by value & sort
+// 		let endTimesDescending = endTimes[endTimes.length - 1].slice()
+// 		endTimesDescending.sort( function(a, b){return a-b} ) 
 
-		// align endTimes with processes from ready queue
+// 		// align endTimes with processes from ready queue
 
-		let tempReadyQueue1 = []; let tempReadyQueue2 = []
+// 		let tempReadyQueue1 = []; let tempReadyQueue2 = []
 
-		// load ready queue with programs in order to be executed
-		for ( i in endTimesDescending )
-			tempReadyQueue1.push( endTimes[endTimes.length - 1].indexOf( endTimesDescending[i] ) )
+// 		// load ready queue with programs in order to be executed
+// 		for ( i in endTimesDescending )
+// 			tempReadyQueue1.push( endTimes[endTimes.length - 1].indexOf( endTimesDescending[i] ) )
 
 
-		// rearrange temp ready queue, accounting for previous ready queue order
-		for ( let i = 0; i < tempReadyQueue1.length; i++)
-			tempReadyQueue2.push( readyQueue[readyQueue.length - 2].indexOf( tempReadyQueue1[i] ) )
+// 		// rearrange temp ready queue, accounting for previous ready queue order
+// 		for ( let i = 0; i < tempReadyQueue1.length; i++)
+// 			tempReadyQueue2.push( readyQueue[readyQueue.length - 2].indexOf( tempReadyQueue1[i] ) )
 
-		// update ready queue
-		readyQueue[readyQueue.length - 1] = tempReadyQueue2.slice() 
+// 		// update ready queue
+// 		readyQueue[readyQueue.length - 1] = tempReadyQueue2.slice() 
 
-		console.log("iterationTimes", iterationTimes)
-		console.log("readyQueue", readyQueue)
-		console.log("endTimes", endTimes)
-		//console.log("totalTime", totalTime)
-		console.log("waitTimes", waitTimes)
+// 		console.log("iterationTimes", iterationTimes)
+// 		console.log("readyQueue", readyQueue)
+// 		console.log("endTimes", endTimes)
+// 		//console.log("totalTime", totalTime)
+// 		console.log("waitTimes", waitTimes)
 
-		// y = 0 // reset y after a column is traversed
+// 		// y = 0 // reset y after a column is traversed
+// 	}
+
+
+// }
+
+let calculateFCFS = function()
+{
+	let tmpReadyQueue = []
+	let tmpEndTimes = []
+	let tmpWaitTimes = []
+
+	// fill first ready queue and end times array, from 0th iterations
+	for (let i = 0; i < P.length; i++)
+	{
+		readyQueue[0].push(i)
+		endTimes[0].push(0)
+		waitTimes[0].push(0)
 	}
 
+
+	// compute iterations of shceduling program (FCFS)
+	for (let x = 0; x < maxArrayWidth; x += 2) // cpu burst width
+	{
+		for (let y = 0; y < readyQueue[readyQueue.length - 1].length; y++) // height of programs
+		{
+			let nextProgram = readyQueue[readyQueue.length - 1][y]  
+			let cpuBurst = P[nextProgram][x]
+			let iOBurst = P[nextProgram][x + 1]
+
+			// zero undefined entries to account for uneven program lengths 
+			if (cpuBurst == undefined)
+				break
+
+				//cpuBurst = 0
+			
+			if (iOBurst == undefined) iOBurst = 0
+
+			// store end time
+			let currProgram = readyQueue[readyQueue.length - 1][y]
+			tmpEndTimes[currProgram] = cpuTime + cpuBurst + iOBurst 
+
+			// store wait time in an array parallel to end times array
+			tmpWaitTimes[currProgram] = cpuTime - endTimes[endTimes.length - 1][nextProgram]
+			
+			cpuTime += cpuBurst // update cpu time
+			//console.log(cpuBurst, iOBurst)
+		}
+
+		// update arrays after each iteration here
+		
+		// determine program order in upcoming ready queue
+		let tmpEndTimesSorted = tmpEndTimes.slice().sort(function(a,b)
+			{return a-b})
+
+		// order & prepare ready queue
+		for (let i = 0; i < tmpEndTimes.length; i++)
+		{
+			let nextReadyQueueProgram = tmpEndTimes.indexOf(tmpEndTimesSorted[i])
+			if (nextReadyQueueProgram != -1)
+				tmpReadyQueue.push( nextReadyQueueProgram )			
+		}
+
+		// update multidimension arrays @ end of each iteration
+		readyQueue[readyQueue.length] = tmpReadyQueue
+		waitTimes[waitTimes.length] = tmpWaitTimes
+		endTimes[endTimes.length] = tmpEndTimes
+
+		//console.log("tmpWaitTimes", tmpWaitTimes)
+		// reset temporary arrays after each iteration
+		tmpReadyQueue = []; tmpEndTimes = []; tmpEndTimes = []; tmpWaitTimes = []
+
+	}
+		console.log("endTimes", endTimes)
+		console.log("waitTimes", waitTimes)
+		console.log("readyQueue", readyQueue)
 
 }
 
@@ -134,6 +230,6 @@ Template.FCFS.helpers
 ({
 	callCalculate()
 	{
-		calculate()
+		calculateFCFS()
 	}
 })
